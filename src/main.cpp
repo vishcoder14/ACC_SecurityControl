@@ -6,7 +6,7 @@
 #define RST_PIN 9 // pin for RST (reset) on the MFRC522
 #define SMPS_TRIGG_PIN 3
 #define CABIN_LIGHT_PIN 4
-#define BUZZER_PIN 7
+#define buzzerPin 7
 
 MFRC522 rfid(SS_PIN, RST_PIN); // create an instance of the MFRC522
 
@@ -15,11 +15,14 @@ const byte LightTriggCardUID[4] = {0xA, 0x3C, 0x90, 0xAF}; // storing the light 
 
 void setup() {
   Serial.begin(9600); // start serial communication
-  SPI.begin(); // start SPI communication
-  rfid.PCD_Init(); // initialize the MFRC522
   pinMode(SMPS_TRIGG_PIN, OUTPUT);
   pinMode(CABIN_LIGHT_PIN, OUTPUT);
-  pinMode(BUZZER_PIN, OUTPUT);
+  pinMode(buzzerPin, OUTPUT);
+  digitalWrite(SMPS_TRIGG_PIN, LOW);
+  digitalWrite(CABIN_LIGHT_PIN, LOW);
+  noTone(buzzerPin);
+  SPI.begin(); // start SPI communication
+  rfid.PCD_Init(); // initialize the MFRC522
 }
 
 void loop() {
@@ -38,7 +41,7 @@ void loop() {
     } 
     else {
       Serial.println("Access denied");
-      
+
     }
   }
   delay(100);
