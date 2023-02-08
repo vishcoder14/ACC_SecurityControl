@@ -8,41 +8,50 @@
 #define CABIN_LIGHT_PIN 4
 #define buzzerPin 7
 
-MFRC522 rfid(SS_PIN, RST_PIN); // create an instance of the MFRC522
+MFRC522 rfid(SS_PIN, RST_PIN);
+MFRC522::MIFARE_Key key;
 
-const byte AuthenticationCardUID[4] = {0xA5, 0x3E, 0x92, 0xAC}; // storing the authentication card's UID
-const byte LightTriggCardUID[4] = {0xA, 0x3C, 0x90, 0xAF}; // storing the light trigg card's UID
+byte readCardUID[4]; 
+const byte AuthenticationUID[4] = {0xA5, 0x3E, 0x92, 0xAC}; // storing the authentication card's UID
+const byte LightTriggUID[4] = {0xA, 0x3C, 0x90, 0xAF}; // storing the light trigg card's UID
+int getID();
 
 void setup() {
   Serial.begin(9600); // start serial communication
+
   pinMode(SMPS_TRIGG_PIN, OUTPUT);
   pinMode(CABIN_LIGHT_PIN, OUTPUT);
   pinMode(buzzerPin, OUTPUT);
+
   digitalWrite(SMPS_TRIGG_PIN, LOW);
   digitalWrite(CABIN_LIGHT_PIN, LOW);
+
   noTone(buzzerPin);
   SPI.begin(); // start SPI communication
   rfid.PCD_Init(); // initialize the MFRC522
+  delay(750);
+  Serial.println("please scan your RFID Card...");
 }
 
 void loop() {
-  if(rfid.PICC_IsNewCardPresent()) { // check if a new card is present
-    rfid.PICC_ReadCardSerial(); // read the card's UID
-    
-    Serial.print("Card UID: ");
-    for(uint8_t abit=0; abit<rfid.uid.size; abit++){
-    Serial.print(rfid.uid.uidByte[abit]);
-    Serial.print("\t"); }
-    
-    // checking a match for authentication card UID with detect card UID:
-    if(rfid.uid.uidByte[0] == AuthenticationCardUID[0] && rfid.uid.uidByte[1] == AuthenticationCardUID[1]
-      && rfid.uid.uidByte[2] == AuthenticationCardUID[2] && rfid.uid.uidByte[3] == AuthenticationCardUID[3]) { 
-      digitalWrite(SMPS_TRIGG_PIN, HIGH); // switch ON SMPS supply
-    } 
-    else {
-      Serial.println("Access denied");
+getID();
+}
 
+int getID() // Function that will read and print the RFID cards UID.
+{
+  if( ! rfid.PICC_IsNewCardPresent()) { 
+    return 1; }
+
+  if( ! rfid.PICC_ReadCardSerial()) { 
+    return 1; }
+    
+    Serial.print("UID: ");    
+    for (int i = 0; i < rfid.uid.size; i++) {  
+      readCardUID[i] = rfid.uid.uidByte[i];    // Reads RFID cards UID.
+      Serial.print(readCardUID[i], HEX);    // Prints RFID cards UID to the serial monitor.
+      Serial.print(" ");     
     }
-  }
-  delay(100);
+    Serial.println();
+    rfid.PICC_HaltA();     // Stops the reading process.
+    return 0;
 }
