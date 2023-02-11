@@ -124,7 +124,7 @@ int scanRFID() {
   return 0;
 }
 
-// compare arrays , return true if equal, false otherwise
+// compare arrays, return true if equal, false otherwise
 bool IsArrayEqual(const byte a1[], byte a2[], uint8_t asize) {
   for(int i = 0; i < asize; i++) {
     if (a1[i] != a2[i]) {
