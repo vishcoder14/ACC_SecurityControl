@@ -92,7 +92,7 @@ int scanRFID() {
   Serial.println();
 
   /* COMPARES & CHECK ALL AUTHENTICATION UIDs */
-  // SMPS power access authentication [switch ON]:
+  // SMPS power access authentication [switch ON/OFF]:
   if(IsArrayEqual(SMPSAuthUID, scanUID, rfid.uid.size)) {
     if(digitalRead(SMPS_TRIGG_RPIN) == SWITCH_OFF) {
       digitalWrite(SMPS_TRIGG_RPIN, SWITCH_ON);
@@ -106,7 +106,7 @@ int scanRFID() {
     }
   }
 
-  // cabin light power access [switch ON]: 
+  // cabin light power access [switch ON/OFF]: 
   if(IsArrayEqual(ClightAuthUID, scanUID, rfid.uid.size)) {
     if(digitalRead(CABIN_LIGHT_RPIN) == SWITCH_OFF) {
       digitalWrite(CABIN_LIGHT_RPIN, SWITCH_ON);
