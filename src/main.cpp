@@ -9,7 +9,6 @@ ADVANCED SECURITY CONTROL ALGORITHM
 -----------------------------------
 */
 
-
 #include <Arduino.h>
 #include <SPI.h>
 #include <MFRC522.h> // library for MFRC522 RFID reader
