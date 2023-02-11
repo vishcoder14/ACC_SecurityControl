@@ -11,7 +11,7 @@ ADVANCED SECURITY CONTROL ALGORITHM
 
 #include <Arduino.h>
 #include <SPI.h>
-#include <MFRC522.h> // library for MFRC522 RFID reader
+#include <MFRC522.h>
 
 /*
 RFID PIN CONFIGURATION
@@ -29,8 +29,8 @@ RFID PIN CONFIGURATION
 +-----------------+
 */
 
-#define SS_PIN 10 // pin for SS (slave select) on MFRC522
-#define RST_PIN 9 // pin for RST (reset) on MFRC522
+#define SS_PIN 10
+#define RST_PIN 9
 #define SMPS_TRIGG_RPIN 3
 #define CABIN_LIGHT_RPIN 4
 #define buzzerPin 7
@@ -55,7 +55,7 @@ int scanRFID();
 bool IsArrayEqual(const byte a1[], byte a2[], uint8_t asize);
 
 void setup() {
-  Serial.begin(9600); // start serial communication.
+  Serial.begin(9600);
 
   pinMode(SMPS_TRIGG_RPIN, OUTPUT);
   pinMode(CABIN_LIGHT_RPIN, OUTPUT);
@@ -65,8 +65,8 @@ void setup() {
   digitalWrite(CABIN_LIGHT_RPIN, SWITCH_OFF);
 
   noTone(buzzerPin);
-  SPI.begin(); // start SPI communication.
-  rfid.PCD_Init(); // initialize the MFRC522.
+  SPI.begin();
+  rfid.PCD_Init();
   delay(750);
   Serial.print("Please scan your RFID Card at the scanner");
 }
@@ -75,7 +75,7 @@ void loop() {
 scanRFID();
 }
 
-// starts scanner
+// starts RFID scanner
 int scanRFID() {
   if( ! rfid.PICC_IsNewCardPresent()) { 
     return 1; }
@@ -87,14 +87,13 @@ int scanRFID() {
   Serial.print("\nUID: ");
   for(int i = 0; i < rfid.uid.size; i++) {  
     scanCardUID[i] = rfid.uid.uidByte[i];
-    //Serial.print(rfid.uid.uidByte[i]);
-    Serial.print(scanCardUID[i], HEX);    // prints current scanned card's UID.
+    Serial.print(scanCardUID[i], HEX);   // prints current scanned card's UID.
     Serial.print(" ");
   }
   Serial.println();
 
   /* COMPARES & CHECK ALL AUTHENTICATION UIDs */
-  // For SMPS power access authentication [switch ON]:
+  // for SMPS power access authentication [switch ON]:
   if(IsArrayEqual(SMPSAuthUID, scanCardUID, rfid.uid.size)) {
     if(digitalRead(SMPS_TRIGG_RPIN) == SWITCH_OFF) {
       digitalWrite(SMPS_TRIGG_RPIN, SWITCH_ON);
@@ -106,7 +105,7 @@ int scanRFID() {
     }
   }
 
-  // For cabin light power access [switch ON]: 
+  // for cabin light power access [switch ON]: 
   if(IsArrayEqual(ClightAuthUID, scanCardUID, rfid.uid.size)) {
     if(digitalRead(CABIN_LIGHT_RPIN) == SWITCH_OFF) {
       digitalWrite(CABIN_LIGHT_RPIN, SWITCH_ON);
