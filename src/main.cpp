@@ -33,7 +33,7 @@ RFID PIN CONFIGURATION
 #define RST_PIN 9
 #define SMPS_TRIGG_RPIN 3
 #define CABIN_LIGHT_RPIN 4
-#define buzzerPin 7
+#define buzzerPin 5
 
 #define SWITCH_ON LOW
 #define SWITCH_OFF HIGH
@@ -41,8 +41,7 @@ RFID PIN CONFIGURATION
 MFRC522 rfid(SS_PIN, RST_PIN);
 MFRC522::MIFARE_Key key;
 
-byte scanCardUID[4]; 
-bool authFlag = true;
+byte scanUID[4]; 
 
 // AUTHENTICATION UIDs:
 /* SMPS authentication match UID: [int?= 16562146172] [hex?= A53E92AC] */
@@ -63,8 +62,8 @@ void setup() {
 
   digitalWrite(SMPS_TRIGG_RPIN, SWITCH_OFF);
   digitalWrite(CABIN_LIGHT_RPIN, SWITCH_OFF);
-
   noTone(buzzerPin);
+
   SPI.begin();
   rfid.PCD_Init();
   delay(750);
@@ -86,34 +85,38 @@ int scanRFID() {
   // Reads RFID UID and store
   Serial.print("\nUID: ");
   for(int i = 0; i < rfid.uid.size; i++) {  
-    scanCardUID[i] = rfid.uid.uidByte[i];
-    Serial.print(scanCardUID[i], HEX);   // prints current scanned card's UID.
+    scanUID[i] = rfid.uid.uidByte[i];
+    Serial.print(scanUID[i], HEX);   // prints current card's UID.
     Serial.print(" ");
   }
   Serial.println();
 
   /* COMPARES & CHECK ALL AUTHENTICATION UIDs */
-  // for SMPS power access authentication [switch ON]:
-  if(IsArrayEqual(SMPSAuthUID, scanCardUID, rfid.uid.size)) {
+  // SMPS power access authentication [switch ON]:
+  if(IsArrayEqual(SMPSAuthUID, scanUID, rfid.uid.size)) {
     if(digitalRead(SMPS_TRIGG_RPIN) == SWITCH_OFF) {
       digitalWrite(SMPS_TRIGG_RPIN, SWITCH_ON);
-      Serial.println("Access Granted: SMPS switched ON");
+      //Serial.println("Access Granted: SMPS switched ON");
+      Serial.println("[SMPS ON]");
     }
     else if(digitalRead(SMPS_TRIGG_RPIN) == SWITCH_ON) {
       digitalWrite(SMPS_TRIGG_RPIN, SWITCH_OFF);
-      Serial.println("[SMPS switched OFF]");
+      //Serial.println("[SMPS switched OFF]");
+      Serial.println("[SMPS OFF]");
     }
   }
 
-  // for cabin light power access [switch ON]: 
-  if(IsArrayEqual(ClightAuthUID, scanCardUID, rfid.uid.size)) {
+  // cabin light power access [switch ON]: 
+  if(IsArrayEqual(ClightAuthUID, scanUID, rfid.uid.size)) {
     if(digitalRead(CABIN_LIGHT_RPIN) == SWITCH_OFF) {
       digitalWrite(CABIN_LIGHT_RPIN, SWITCH_ON);
-      Serial.println("Access Granted: Cabin light switched ON");
+      //Serial.println("Access Granted: Cabin light switched ON");
+      Serial.println("[Cabin light ON]");
     }
     else if(digitalRead(CABIN_LIGHT_RPIN) == SWITCH_ON) {
       digitalWrite(CABIN_LIGHT_RPIN, SWITCH_OFF);
-      Serial.println("[Cabin light switched OFF]");
+      //Serial.println("[Cabin light switched OFF]");
+      Serial.println("[Cabin light OFF]");
     }
   }
 
